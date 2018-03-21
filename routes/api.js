@@ -1,9 +1,9 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+
+const apiController = require('../controllers/apiController');
 
 // 'ok' response
-router.get('/', (req, res, next) => {
-  res.status(200).json({ message: 'ok' });
-});
+router.get('/', apiController.default);
 
 module.exports = router;
