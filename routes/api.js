@@ -4,8 +4,8 @@ const router = express.Router();
 const apiController = require('../controllers/apiController');
 const authController = require('../controllers/authController');
 
-// 'ok' response
 router.get('/', authController.isUser, apiController.default);
 router.get('/clients', apiController.clients);
+router.get('/user-by-id/:id', authController.isUser, apiController.userById);
 
 module.exports = router;
