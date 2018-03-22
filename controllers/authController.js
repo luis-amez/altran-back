@@ -32,3 +32,35 @@ exports.isUser = (req, res, next) => {
     res.status(401).json({ message: 'Identification required' });
   }
 };
+
+// Check if the client is an admin
+exports.isAdmin = (req, res, next) => {
+  const userEmail = req.headers.authorization;
+  console.log(req.headers);
+
+  if (userEmail) {
+    const options = {
+      uri: process.env.CLIENTS_URI,
+      method: 'GET',
+      json: true
+    };
+
+    request(options)
+      .then(response => {
+        const user = response.clients.find(client => {
+          return (client.email === userEmail && client.role === 'admin');
+        });
+
+        if (user) {
+          next();
+        } else {
+          res.status(403).json({ message: 'Admin permission required' });
+        }
+      })
+      .catch(error => {
+        next(error);
+      });
+  } else {
+    res.status(401).json({ message: 'Identification required' });
+  }
+};
