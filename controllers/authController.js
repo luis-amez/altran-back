@@ -2,7 +2,7 @@
 
 const request = require('request-promise-native');
 
-// Check if the client is a user or an admin
+// Check if the client is either a user or an admin
 exports.isUser = (req, res, next) => {
   const userEmail = req.headers.authorization;
 
