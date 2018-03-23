@@ -51,7 +51,7 @@ exports.userById = (req, res, next) => {
     });
 };
 
-// Users data by username
+// Users data by name
 exports.usersByName = (req, res, next) => {
   const userName = req.params.name;
 
@@ -63,12 +63,59 @@ exports.usersByName = (req, res, next) => {
 
   request(options)
     .then(response => {
-      const user = response.clients.filter(client => {
+      const users = response.clients.filter(client => {
         return client.name === userName;
       });
 
-      if (user.length > 0) {
-        res.status(200).json(user);
+      if (users.length > 0) {
+        res.status(200).json(users);
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    })
+    .catch(error => {
+      next(error);
+    });
+};
+
+// Policies linked to user name (firs user with that name)
+exports.policiesByUserName = (req, res, next) => {
+  const userName = req.params.name;
+
+  const optionsUserRequest = {
+    uri: process.env.CLIENTS_URI,
+    method: 'GET',
+    json: true
+  };
+
+  request(optionsUserRequest)
+    .then(responseUser => {
+      const user = responseUser.clients.find(client => {
+        return client.name === userName;
+      });
+
+      if (user) {
+        const optionsPoliciesRequest = {
+          uri: process.env.POLICIES_URI,
+          method: 'GET',
+          json: true
+        };
+
+        request(optionsPoliciesRequest)
+          .then(responsePolicy => {
+            const policies = responsePolicy.policies.filter(policy => {
+              return policy.email === user.email;
+            });
+
+            if (policies.length > 0) {
+              res.status(200).json(policies);
+            } else {
+              res.status(404).json({ message: 'This user has no policies' });
+            }
+          })
+          .catch(error => {
+            next(error);
+          });
       } else {
         res.status(404).json({ message: 'User not found' });
       }
